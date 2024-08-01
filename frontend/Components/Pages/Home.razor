@@ -1,4 +1,7 @@
-﻿@page "/"
+﻿@using frontend.Clients
+@inject IApiAppClient ApiApp
+
+@page "/"
 
 @using Microsoft.AspNetCore.Components.Forms
 
@@ -39,17 +42,26 @@
     private string summaryLanguageCode = "en";
     private string result;
 
-    private void GenerateSummary()
+    private async Task SummariseAsync()
     {
-        // Logic to generate summary based on youtubeUrl, videoLanguage, and summaryLanguage
-        result = "Summary generated for the provided YouTube link.";
+        try
+        {
+            var temp = await ApiApp.SummariseAsync(youtubeLink, videoLanguageCode, summaryLanguageCode);
+            result = temp;
+        }
+        catch (Exception ex)
+        {
+            result = ex.Message;
+        }
     }
 
-    private void ClearInputs()
+    private async Task ClearAsync()
     {
         youtubeLink = string.Empty;
         videoLanguageCode = "en";
         summaryLanguageCode = "en";
         result = string.Empty;
+
+        await Task.CompletedTask;
     }
 }
