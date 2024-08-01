@@ -1,7 +1,55 @@
 ﻿@page "/"
 
+@using Microsoft.AspNetCore.Components.Forms
+
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container mt-4">
+    <div class="mb-3">
+        <label for="youtube-link" class="form-label">YouTube Link URL</label>
+        <input type="text" class="form-control" id="youtube-link" @bind="youtubeLink" />
+    </div>
+    <div class="mb-3">
+        <label for="video-language-code" class="form-label">Video Language</label>
+        <select class="form-select" id="video-language-code" @bind="videoLanguageCode">
+            <option value="en">English</option>
+            <option value="ko">Korean</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="summary-language-code" class="form-label">Summary Language</label>
+        <select class="form-select" id="summary-language-code" @bind="summaryLanguageCode">
+            <option value="en">English</option>
+            <option value="ko">Korean</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <button class="btn btn-primary me-2" @onclick="GenerateSummary">Summary</button>
+        <button class="btn btn-secondary" @onclick="ClearInputs">Clear</button>
+    </div>
+    <div class="mb-3">
+        <label for="result" class="form-label">Summary Result</label>
+        <textarea class="form-control" id="result" rows="5" @bind="result"></textarea>
+    </div>
+</div>
 
-Welcome to your new app.
+@code {
+    private string youtubeLink;
+    private string videoLanguageCode = "en";
+    private string summaryLanguageCode = "en";
+    private string result;
+
+    private void GenerateSummary()
+    {
+        // Logic to generate summary based on youtubeUrl, videoLanguage, and summaryLanguage
+        result = "Summary generated for the provided YouTube link.";
+    }
+
+    private void ClearInputs()
+    {
+        youtubeLink = string.Empty;
+        videoLanguageCode = "en";
+        summaryLanguageCode = "en";
+        result = string.Empty;
+    }
+}
