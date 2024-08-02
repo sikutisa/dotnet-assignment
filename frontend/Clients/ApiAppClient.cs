@@ -11,9 +11,9 @@ public class ApiAppClient(HttpClient http) : IApiAppClient
 {
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
 
-    public async Task<string> SummariseAsync(string youTubeLinkUrl, string videoLanguageCode, string summaryLanguageCode)
+    public async Task<string> SummariseAsync(string youTubeLink, string videoLanguageCode, string summaryLanguageCode)
     {
-        using var response = await _http.PostAsJsonAsync("summarise", new { youTubeLinkUrl, videoLanguageCode, summaryLanguageCode }).ConfigureAwait(false);
+        using var response = await _http.PostAsJsonAsync("summarise", new { youTubeLink, videoLanguageCode, summaryLanguageCode }).ConfigureAwait(false);
 
         var summary = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 

@@ -3,14 +3,17 @@ using frontend.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ApiAppClient에 대한 의존성
-builder.Services.AddHttpClient<IApiAppClient, ApiAppClient>(p => p.BaseAddress = new Uri("http://localhost:5095"));
+builder.AddServiceDefaults();
 
+// ApiAppClient에 대한 의존성
+builder.Services.AddHttpClient<IApiAppClient, ApiAppClient>(p => p.BaseAddress = new Uri("https+http://backend"));
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
