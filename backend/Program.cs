@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<YoutubeSummariserService>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -40,9 +41,9 @@ app.MapGet("/weatherforecast", () =>
 
 
 // youtube summary 엔드포인트
-app.MapGet("/summarise", ([FromBody] SummaryRequest request) =>
+app.MapGet("/summarise", async ([FromBody] SummaryRequest request, YoutubeSummariserService service) =>
 {
-    var summary = "Temp";
+    var summary = await service.SummariseAsync(request);
     return summary;
 })
 .WithName("GetSummary")
@@ -56,3 +57,13 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 }
 
 record SummaryRequest(string? YoutubeLink, string VideoLanguageCode, string? SummaryLanguageCode);
+
+class YoutubeSummariserService
+{
+    public async Task<string> SummariseAsync(SummaryRequest request)
+    {
+        string summary = "Temp";
+        
+        return await Task.FromResult(summary).ConfigureAwait(false);
+    }
+}
