@@ -443,3 +443,9 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,dotnetcore,csharp,windows
+
+*.bak
+**/appsettings.Development.json
+appsettings.Production.json
+bundle.js
+bundle.js.*.txt
