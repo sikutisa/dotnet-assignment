@@ -3,6 +3,8 @@ namespace frontend.Clients;
 public interface IApiAppClient
 {
     Task<string> SummariseAsync(string youtubeLink, string videoLanguageCode, string summaryLanguageCode);
+    Task<List<ApiAppClient.WeatherForecast>> WeatherForecastAsync();
+
 }
 
 public class ApiAppClient(HttpClient http) : IApiAppClient
@@ -16,5 +18,21 @@ public class ApiAppClient(HttpClient http) : IApiAppClient
         var summary = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
         return summary;
+    }
+
+    public async Task<List<WeatherForecast>> WeatherForecastAsync()
+    {
+        using var response = await _http.GetAsync("weatherforecast").ConfigureAwait(false);
+
+        var forecasts = await response.Content.ReadFromJsonAsync<List<WeatherForecast>>().ConfigureAwait(false);
+        return forecasts ?? [];
+    }
+
+    public class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }
 }
