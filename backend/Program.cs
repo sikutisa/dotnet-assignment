@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -36,9 +38,21 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
+
+// youtube summary 엔드포인트
+app.MapGet("/summarise", ([FromBody] SummaryRequest request) =>
+{
+    var summary = "Temp";
+    return summary;
+})
+.WithName("GetSummary")
+.WithOpenApi();
+
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
+
+record SummaryRequest(string? YoutubeLink, string VideoLanguageCode, string? SummaryLanguageCode);
