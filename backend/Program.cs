@@ -1,7 +1,22 @@
+using Aliencube.YouTubeSubtitlesExtractor;
+using Aliencube.YouTubeSubtitlesExtractor.Abstractions;
+using Aliencube.YouTubeSubtitlesExtractor.Models;
+using Azure;
+using Azure.AI.OpenAI;
 using Microsoft.AspNetCore.Mvc;
+using OpenAI.Chat;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<YoutubeSummariserService>();
+builder.Services.AddHttpClient<IYouTubeVideo, YouTubeVideo>();
+builder.Services.AddScoped<AzureOpenAIClient>(sp => {
+    var config = sp.GetRequiredService<IConfiguration>();
+    var endpoint = new Uri(config["OpenAI:Endpoint"]);
+    var credential = new AzureKeyCredential(config["OpenAI:ApiKey"]);
+    var client = new AzureOpenAIClient(endpoint, credential);
+
+    return client;
+});
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -41,7 +56,7 @@ app.MapGet("/weatherforecast", () =>
 
 
 // youtube summary 엔드포인트
-app.MapGet("/summarise", async ([FromBody] SummaryRequest request, YoutubeSummariserService service) =>
+app.MapPost("/summarise", async ([FromBody] SummaryRequest request, YoutubeSummariserService service) =>
 {
     var summary = await service.SummariseAsync(request);
     return summary;
@@ -58,12 +73,35 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 
 record SummaryRequest(string? YoutubeLink, string VideoLanguageCode, string? SummaryLanguageCode);
 
-class YoutubeSummariserService
+class YoutubeSummariserService(IYouTubeVideo youtube, AzureOpenAIClient openai, IConfiguration config)
 {
+    private readonly IYouTubeVideo _youtube = youtube?? throw new ArgumentNullException(nameof(youtube));
+    private readonly AzureOpenAIClient _openai = openai?? throw new ArgumentNullException(nameof(openai));  
+    private readonly IConfiguration _config = config?? throw new ArgumentNullException(nameof(config));
+
     public async Task<string> SummariseAsync(SummaryRequest request)
     {
-        string summary = "Temp";
+        Subtitle subtitle = await this._youtube.ExtractSubtitleAsync(request.YoutubeLink, request.VideoLanguageCode).ConfigureAwait(false);
+        string caption = subtitle.Content.Select(p => p.Text).Aggregate((a, b) => $"{a}\n{b}");
         
-        return await Task.FromResult(summary).ConfigureAwait(false);
+        var chat = this._openai.GetChatClient(this._config["OpenAI:DeploymentName"]);
+
+        var messages = new List<ChatMessage>()
+        {
+            new SystemChatMessage(this._config["Prompt:System"]),
+            new SystemChatMessage($"Here's the transcript. Summarise it in 5 bullet point items in the given language code of \"{request.SummaryLanguageCode}\"."),
+            new UserChatMessage(caption),
+        };
+
+        var options = new ChatCompletionOptions()
+        {
+            MaxTokens = int.TryParse(this._config["Prompt:MaxTokens"], out var maxTokens) ? maxTokens : 3000,
+            Temperature = float.TryParse(this._config["Prompt:Temperature"], out var temperature) ? temperature : 0.7f,
+        };
+
+        var response = await chat.CompleteChatAsync(messages, options).ConfigureAwait(false);
+        var summary = response.Value.Content[0].Text;
+
+        return summary;
     }
 }
