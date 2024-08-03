@@ -45,11 +45,11 @@ jobs:
         shell: pwsh
         run: |
           pushd ./
-          $appsettings = Get-Content -Path ./AspireYouTubeSummariser.AppHost/appsettings.json | ConvertFrom-Json
+          $appsettings = Get-Content -Path ./AspireYouTubeSummariser/AspireYouTubeSummariser.AppHost/appsettings.json | ConvertFrom-Json
           $appsettings.OpenAI.Endpoint = "${{ secrets.AZURE_OPENAI_ENDPOINT }}"
           $appsettings.OpenAI.ApiKey = "${{ secrets.AZURE_OPENAI_API_KEY }}"
           $appsettings.OpenAI.DeploymentName = "${{ secrets.AZURE_OPENAI_DEPLOYMENT_NAME }}"
-          $appsettings | ConvertTo-Json -Depth 100 | Out-File -FilePath ./AspireYouTubeSummariser.AppHost/appsettings.json -Encoding utf8 -Force
+          $appsettings | ConvertTo-Json -Depth 100 | Out-File -FilePath ./AspireYouTubeSummariser/AspireYouTubeSummariser.AppHost/appsettings.json -Encoding utf8 -Force
           popd
 
       - name: Install azd
