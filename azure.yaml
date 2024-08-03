@@ -4,5 +4,5 @@ name: dotnet-assignment
 services:  
   app:
     language: dotnet
-    project: .\AspireYouTubeSummariser\AspireYouTubeSummariser.AppHost\AspireYouTubeSummariser.AppHost.csproj
+    project: ./AspireYouTubeSummariser/AspireYouTubeSummariser.AppHost/AspireYouTubeSummariser.AppHost.csproj
     host: containerapp
