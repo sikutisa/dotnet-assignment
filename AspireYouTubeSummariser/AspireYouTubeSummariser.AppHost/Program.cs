@@ -9,6 +9,7 @@ var backend = builder.AddProject<Projects.backend>("backend")
 
 
 builder.AddProject<Projects.frontend>("frontend")
+       .WithExternalHttpEndpoints()
        .WithReference(backend);
 
 builder.Build().Run();
